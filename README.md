@@ -8,7 +8,7 @@ I have a lot of cookbooks, and a far fewer number of recipes that I consider par
 
 ## Development Plan
 
-1. A program that you can feed a plaintext recipe and have it rejig it into the desired format
+1. **DONE** A program that you can feed a plaintext recipe and have it rejig it into the desired format
 2. Feed a jpeg of a recipe, have it run OCR and then fit it into the desired format
 3. Feed a PDF of a recipe, have it convert to an image and run OCR if necessary, otherwise read the plaintext and fit into the desired format
 4. A daemon that manages a directory of scans and creates markdown files as needed
