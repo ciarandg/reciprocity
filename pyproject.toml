@@ -10,7 +10,7 @@ dependencies = [
 ]
 
 [project.scripts]
-reciprocity = "main.py:main"
+reciprocity = "reciprocity:main"
 
 [build-system]
 requires = ["hatchling"]
