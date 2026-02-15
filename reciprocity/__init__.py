@@ -33,15 +33,20 @@ def setup():
     help="Takes a plaintext recipe and restructures it to fit a consistent template"
 )
 def format(
-    path: Annotated[
-        Path, typer.Argument(help="The path of the text file containing a recipe")
-    ],
+    input_file: Annotated[
+        Optional[Path],
+        typer.Option(
+            "-i",
+            "--input-file",
+            help="The path of the text file containing a recipe (otherwise reads from stdin)",
+        ),
+    ] = None,
     output_file: Annotated[
         Optional[Path],
         typer.Option(
             "-o",
             "--output-file",
-            help="The path of the file to write the formatted recipe to",
+            help="The path of the file to write the formatted recipe to (otherwise writes to stdout)",
         ),
     ] = None,
     print_thinking: Annotated[
@@ -51,7 +56,11 @@ def format(
     if not has_model():
         setup()
 
-    recipe_raw = read_file(path)
+    recipe_raw: str
+    if not input_file:
+        recipe_raw = sys.stdin.read()
+    else:
+        recipe_raw = read_file(input_file)
 
     stream = client.chat(
         model=OLLAMA_MODEL,
