@@ -1,6 +1,7 @@
 import sys
+from importlib import resources
 from pathlib import Path
-from typing import Annotated, TextIO, Optional
+from typing import Annotated, Optional, TextIO
 
 import typer
 from ollama import Client
@@ -8,12 +9,30 @@ from rich import print
 
 OLLAMA_HOST = "http://127.0.0.1:11434"
 OLLAMA_MODEL = "reciprocity"
+OLLAMA_BASE = "qwen3:1.7b"
 
 app = typer.Typer()
+client = Client(host=OLLAMA_HOST)
 
 
-@app.command()
-def run(
+@app.command(help="Creates the Ollama model used for formatting")
+def setup():
+    print(
+        f"[yellow]Creating model {OLLAMA_MODEL} from base {OLLAMA_BASE}...[/yellow]",
+        file=sys.stderr,
+    )
+    client.create(
+        model=OLLAMA_MODEL,
+        from_=OLLAMA_BASE,
+        system=system_prompt(),
+    )
+    print("[yellow]Success![/yellow]", file=sys.stderr)
+
+
+@app.command(
+    help="Takes a plaintext recipe and restructures it to fit a consistent template"
+)
+def format(
     path: Annotated[
         Path, typer.Argument(help="The path of the text file containing a recipe")
     ],
@@ -29,9 +48,11 @@ def run(
         bool, typer.Option(help="Whether to stream model's thinking field to stderr")
     ] = True,
 ):
+    if not has_model():
+        setup()
+
     recipe_raw = read_file(path)
 
-    client = Client(host=OLLAMA_HOST)
     stream = client.chat(
         model=OLLAMA_MODEL,
         messages=[
@@ -59,6 +80,31 @@ def run(
 
         if content:
             print(content, end="", file=content_out, flush=True)
+
+
+def system_prompt() -> str:
+    template = (
+        resources.files("reciprocity.data")
+        .joinpath("template.txt")
+        .read_text(encoding="utf-8")
+    )
+    instructions = (
+        resources.files("reciprocity.data")
+        .joinpath("instructions.txt")
+        .read_text(encoding="utf-8")
+    )
+    return f"""
+TEMPLATE (copy exactly, do not modify structure):
+{template}
+INSTRUCTIONS:
+{instructions}
+"""
+
+
+def has_model() -> bool:
+    models = client.list().models
+    matches = [m for m in models if m["model"] == f"{OLLAMA_MODEL}:latest"]
+    return len(matches) > 0
 
 
 def read_file(path: Path) -> str:
