@@ -1,31 +1,44 @@
+from pathlib import Path
+from typing import Annotated
 from ollama import ChatResponse, Client
 import typer
 
 OLLAMA_HOST = "http://127.0.0.1:11434"
-OLLAMA_MODEL = "qwen3:1.7b"
+OLLAMA_MODEL = "reciprocity"
 
 app = typer.Typer()
 
 
 @app.command()
 def run(
-    input: str,
-    verbose: bool = False,
+    path: Annotated[
+        Path, typer.Argument(help="The path of the text file containing a recipe")
+    ],
 ):
-    if verbose:
-        typer.echo("Verbose mode on")
-    typer.echo(f"Processing {input}")
+    recipe_raw = read_file(path)
+
     client = Client(host=OLLAMA_HOST)
-    response: ChatResponse = client.chat(
+    stream = client.chat(
         model=OLLAMA_MODEL,
         messages=[
             {
                 "role": "user",
-                "content": "Why is the sky blue? In 10 words",
+                "content": recipe_raw,
             },
         ],
+        stream=True,
     )
-    print(response.message.content)
+    for chunk in stream:
+        print(chunk["message"]["content"], end="", flush=True)
+
+
+def read_file(path: Path) -> str:
+    try:
+        with open(path, "r") as f:
+            return f.read()
+    except Exception as _:
+        print(f"Failed to read file: {path}")
+        exit(1)
 
 
 def main():
@@ -33,4 +46,4 @@ def main():
 
 
 if __name__ == "__main__":
-    app()
+    main()
