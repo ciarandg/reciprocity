@@ -1,6 +1,6 @@
 import sys
 from pathlib import Path
-from typing import Annotated
+from typing import Annotated, TextIO, Optional
 
 import typer
 from ollama import Client
@@ -17,6 +17,14 @@ def run(
     path: Annotated[
         Path, typer.Argument(help="The path of the text file containing a recipe")
     ],
+    output_file: Annotated[
+        Optional[Path],
+        typer.Option(
+            "-o",
+            "--output-file",
+            help="The path of the file to write the formatted recipe to",
+        ),
+    ] = None,
     print_thinking: Annotated[
         bool, typer.Option(help="Whether to stream model's thinking field to stderr")
     ] = True,
@@ -34,6 +42,13 @@ def run(
         ],
         stream=True,
     )
+
+    content_out: TextIO
+    if output_file is not None:
+        content_out = open(output_file, "w")
+    else:
+        content_out = sys.stdout
+
     for chunk in stream:
         message = chunk.get("message", {})
         thinking = message.get("thinking", None)
@@ -41,8 +56,9 @@ def run(
 
         if print_thinking and thinking:
             print(f"[blue]{thinking}[/blue]", end="", file=sys.stderr, flush=True)
+
         if content:
-            print(content, end="", flush=True)
+            print(content, end="", file=content_out, flush=True)
 
 
 def read_file(path: Path) -> str:
