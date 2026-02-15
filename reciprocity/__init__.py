@@ -1,7 +1,10 @@
+import sys
 from pathlib import Path
 from typing import Annotated
-from ollama import ChatResponse, Client
+
 import typer
+from ollama import Client
+from rich import print
 
 OLLAMA_HOST = "http://127.0.0.1:11434"
 OLLAMA_MODEL = "reciprocity"
@@ -14,6 +17,9 @@ def run(
     path: Annotated[
         Path, typer.Argument(help="The path of the text file containing a recipe")
     ],
+    print_thinking: Annotated[
+        bool, typer.Option(help="Whether to stream model's thinking field to stderr")
+    ] = True,
 ):
     recipe_raw = read_file(path)
 
@@ -29,7 +35,14 @@ def run(
         stream=True,
     )
     for chunk in stream:
-        print(chunk["message"]["content"], end="", flush=True)
+        message = chunk.get("message", {})
+        thinking = message.get("thinking", None)
+        content = message.get("content", None)
+
+        if print_thinking and thinking:
+            print(f"[blue]{thinking}[/blue]", end="", file=sys.stderr, flush=True)
+        if content:
+            print(content, end="", flush=True)
 
 
 def read_file(path: Path) -> str:
