@@ -32,9 +32,7 @@ def setup():
     print("[yellow]Success![/yellow]", file=sys.stderr)
 
 
-@app.command(
-    help="Takes an image or PDF of a recipe and runs OCR to convert it to plaintext"
-)
+@app.command(help="Converts images or PDFs of a recipe to plaintext")
 def read(
     input_files: Annotated[
         list[Path],
@@ -56,16 +54,14 @@ def read(
             print(text)
 
 
-@app.command(
-    help="Takes a plaintext recipe and restructures it to fit a consistent template"
-)
+@app.command(help="Restrucutres a plaintext recipe to fit a consistent template")
 def format(
     input_file: Annotated[
         Optional[Path],
         typer.Option(
             "-i",
             "--input-file",
-            help="The path of the text file containing a recipe (otherwise reads from stdin)",
+            help="Path to text file containing a recipe (otherwise reads from stdin)",
         ),
     ] = None,
     output_file: Annotated[
@@ -73,11 +69,11 @@ def format(
         typer.Option(
             "-o",
             "--output-file",
-            help="The path of the file to write the formatted recipe to (otherwise writes to stdout)",
+            help="Path to file for formatted recipe (otherwise writes to stdout)",
         ),
     ] = None,
     print_thinking: Annotated[
-        bool, typer.Option(help="Whether to stream model's thinking field to stderr")
+        bool, typer.Option(help="Streams model's thinking field to stderr")
     ] = True,
 ):
     if not has_model():
