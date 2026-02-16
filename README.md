@@ -1,6 +1,6 @@
 # Reciprocity
 
-A WIP tool for wrangling scans of recipes
+Reciprocity is a CLI and daemon for converting recipe scans to Markdown.
 
 ## Motivation
 
