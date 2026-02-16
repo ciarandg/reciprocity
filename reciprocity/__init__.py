@@ -19,7 +19,7 @@ client = Client(host=OLLAMA_HOST)
 
 
 @app.command(help="Creates the Ollama model used for formatting")
-def setup():
+def build_model():
     print(
         f"[yellow]Creating model {OLLAMA_MODEL} from base {OLLAMA_BASE}...[/yellow]",
         file=sys.stderr,
@@ -77,7 +77,7 @@ def format(
     ] = True,
 ):
     if not has_model():
-        setup()
+        build_model()
 
     recipe_raw: str
     if not input_file:
