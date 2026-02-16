@@ -50,20 +50,6 @@ def setup():
     print("[green]All dependencies are correctly configured![/green]", file=sys.stderr)
 
 
-@app.command(help="Creates the Ollama model used for formatting")
-def build_model():
-    print(
-        f"[yellow]Creating model {OLLAMA_MODEL} from base {OLLAMA_BASE}...[/yellow]",
-        file=sys.stderr,
-    )
-    client.create(
-        model=OLLAMA_MODEL,
-        from_=OLLAMA_BASE,
-        system=system_prompt(),
-    )
-    print("[yellow]Success![/yellow]", file=sys.stderr)
-
-
 @app.command(help="Converts images or PDFs of a recipe to plaintext")
 def read(
     input_files: Annotated[
@@ -144,6 +130,19 @@ def format(
 
         if content:
             print(content, end="", file=content_out, flush=True)
+
+
+def build_model():
+    print(
+        f"[yellow]Creating model {OLLAMA_MODEL} from base {OLLAMA_BASE}...[/yellow]",
+        file=sys.stderr,
+    )
+    client.create(
+        model=OLLAMA_MODEL,
+        from_=OLLAMA_BASE,
+        system=system_prompt(),
+    )
+    print("[yellow]Success![/yellow]", file=sys.stderr)
 
 
 def system_prompt() -> str:
