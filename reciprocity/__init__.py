@@ -36,23 +36,24 @@ def setup():
     help="Takes an image or PDF of a recipe and runs OCR to convert it to plaintext"
 )
 def read(
-    input_file: Annotated[
-        Path,
+    input_files: Annotated[
+        list[Path],
         typer.Option(
             "-i",
-            "--input-file",
-            help="The path of the image or PDF file containing a recipe (otherwise reads from stdin)",
+            "--input-files",
+            help="Path(s) to images or PDF files containing a recipe",
         ),
     ],
 ):
-    images: list[Image.Image]
-    if input_file.suffix.lower() == ".pdf":
-        images = convert_from_path(input_file, dpi=300)
-    else:
-        images = [Image.open(input_file)]
-    ocr = [pytesseract.image_to_string(img) for img in images]
-    for text in ocr:
-        print(text)
+    for path in input_files:
+        images: list[Image.Image]
+        if path.suffix.lower() == ".pdf":
+            images = convert_from_path(path, dpi=300)
+        else:
+            images = [Image.open(path)]
+        ocr = [pytesseract.image_to_string(img) for img in images]
+        for text in ocr:
+            print(text)
 
 
 @app.command(
