@@ -4,7 +4,7 @@ A WIP tool for wrangling scans of recipes
 
 ## Motivation
 
-I have a lot of cookbooks, and a far fewer number of recipes that I consider part of my repertoire, which I want to have on-hand. I have been scanning recipes that I like and dumping them into my notes as PDFs for a long time, but this is not an ideal way to capture them because it's non-editable. I'm aiming to create a pipeline for converting PDF recipes to a consistent Markdown format that I can manually adapt with my own notes over time. Maybe I'll learn a bit about OCR and LLMs along the way.
+I have a lot of cookbooks, and a far fewer number of recipes that I consider go-tos, which I want to have on-hand. I have been scanning recipes that I like and dumping them into my notes as PDFs for a long time, but this is not an ideal way to capture them because it's non-editable. I'm aiming to create a pipeline for converting PDF recipes to a consistent Markdown format that I can manually adapt with my own notes over time. Maybe I'll learn a bit about OCR and LLMs along the way.
 
 ## Development Plan
 
