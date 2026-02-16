@@ -1,3 +1,4 @@
+from pdf2image import convert_from_path
 import sys
 from importlib import resources
 from pathlib import Path
@@ -31,20 +32,27 @@ def setup():
     print("[yellow]Success![/yellow]", file=sys.stderr)
 
 
-@app.command(help="Takes an image of a recipe and runs OCR to convert it to plaintext")
+@app.command(
+    help="Takes an image or PDF of a recipe and runs OCR to convert it to plaintext"
+)
 def read(
     input_file: Annotated[
         Path,
         typer.Option(
             "-i",
             "--input-file",
-            help="The path of the text file containing a recipe (otherwise reads from stdin)",
+            help="The path of the image or PDF file containing a recipe (otherwise reads from stdin)",
         ),
     ],
 ):
-    image = Image.open(input_file)
-    ocr = pytesseract.image_to_string(image)
-    print(ocr)
+    images: list[Image.Image]
+    if input_file.suffix.lower() == ".pdf":
+        images = convert_from_path(input_file, dpi=300)
+    else:
+        images = [Image.open(input_file)]
+    ocr = [pytesseract.image_to_string(img) for img in images]
+    for text in ocr:
+        print(text)
 
 
 @app.command(
