@@ -4,12 +4,51 @@ Reciprocity is a CLI and daemon for converting recipe scans to Markdown.
 
 ## Motivation
 
-I have a lot of cookbooks, and a far fewer number of recipes that I consider go-tos, which I want to have on-hand. I have been scanning recipes that I like and dumping them into my notes as PDFs for a long time, but this is not an ideal way to capture them because it's non-editable. I'm aiming to create a pipeline for converting PDF recipes to a consistent Markdown format that I can manually adapt with my own notes over time. Maybe I'll learn a bit about OCR and LLMs along the way.
+I have a lot of cookbooks. Among those cookbooks are a far fewer number of recipes that I consider go-tos, and which I want to have on-hand. I have been scanning recipes that I like and dumping them into my notes as PDFs for a long time, but eventually I end up needing to transcribe them into plaintext by hand so that I can add notes and tweaks.
 
-## Development Plan
+Reciprocity provides a pipeline for converting PDF recipes to a consistent Markdown format. Once converted to Markdown, I can manually adapt recipes as a part of my own note-taking system.
 
-1. **DONE** A program that you can feed a plaintext recipe and have it rejig it into the desired format
-2. **DONE** Feed a jpeg of a recipe, have it run OCR and then fit it into the desired format
-3. Feed a PDF of a recipe, have it convert to an image and run OCR if necessary, otherwise read the plaintext and fit into the desired format
-4. A daemon that manages a directory of scans and creates markdown files as needed
-5. A UI for scanning, cropping, specifying metadata upfront, and automatically uploading to managed directory
+I know that there are a number of other FOSS recipe management solutions available. I have not taken a comprehensive look at the options, but my understanding is that most of them take a heavyweight database + web-UI approach rather than simply treating recipes as notes. Those other solutions may be more suited to peoples' personal needs; this is the tool that suits mine.
+
+## Dependencies
+
+1. [Poppler](https://poppler.freedesktop.org/) (specifically `pdftoppm`) is needed for converting PDFs into images
+1. [Tesseract OCR](https://tesseract-ocr.github.io/) is needed for converting images into plaintext
+2. [Ollama](https://ollama.com/) is needed for running a locally-hosted LLM to coerce plaintext recipes into templated Markdown
+
+You can run `reciprocity setup` to confirm that your environment has all the required dependencies available.
+
+## Installation
+
+Reciprocity is not currently published to any package repositories, but there is a `flake.nix` file in this repository that you can use to install it.
+
+You can run Reciprocity directly via `nix run github:ciarandg/reciprocity`, or install it by adding the repository to your config as a Flake input and then adding `inputs.reciprocity.packages.<system>.reciprocity` to your `environment.systemPackages` or `home.packages`.
+
+Another option is to clone this repo and use `uv` directly to run Reciprocity, e.g. `uv run reciprocity`.
+
+## Usage
+
+Reciprocity provides three subcommands:
+
+1. `setup`: Confirms that external dependencies are available, and builds custom Ollama model if not yet available
+2. `read`: Takes one or more `-i <path>` options to PDF or image files that comprise a single recipe, uses [Tesseract OCR](https://tesseract-ocr.github.io/) via [pytesseract](https://pypi.org/project/pytesseract/) to convert them into plaintext, and writes them to `stdout`
+3. `format`: Takes plaintext via `stdin` or reads from a file provided via a `-i <path>` option, builds a custom Ollama model if not yet available, and then uses that model to coerce the input plaintext into the [built-in Markdown template](./reciprocity/data/template.txt)
+
+## Examples
+
+```bash
+# Check dependencies and build Ollama model if necessary
+reciprocity setup
+
+# Run OCR on a two-page recipe and write plaintext to stdout
+reciprocity read -i ~/recipes/cake-1.png -i ~/recipes/cake-2.png
+
+# Convert a recipe PDF to plaintext and write it to a text file
+reciprocity read -i ~/recipes/cake.pdf -o ~/recipes/cake.txt
+
+# Format a plaintext recipe file with Ollama and write it to a Markdown file
+reciprocity format -i ~/recipes/cake.txt -o ~/recipes/cake.md
+
+# Convert a recipe PDF to plaintext, write it to stdout, then feed it into Ollama and write it to a Markdown file
+reciprocity read -i ~/recipes/cake.pdf | reciprocity format -o ~/recipes/cake.md
+```
