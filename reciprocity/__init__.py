@@ -1,3 +1,4 @@
+import shutil
 from pdf2image import convert_from_path
 import sys
 from importlib import resources
@@ -16,6 +17,37 @@ OLLAMA_BASE = "qwen3:1.7b"
 
 app = typer.Typer()
 client = Client(host=OLLAMA_HOST)
+
+
+@app.command(
+    help="Checks for required system dependencies and builds Ollama model if necessary",
+)
+def setup():
+    errors: list[str] = []
+
+    is_ollama_working = True
+    try:
+        client.ps()
+    except Exception:
+        is_ollama_working = False
+        errors.append(
+            f"Broken configuration: could not connect to Ollama at {OLLAMA_HOST}"
+        )
+
+    if is_ollama_working and not has_model():
+        build_model()
+
+    if shutil.which("pdftoppm") is None:
+        errors.append("Missing system dependency: pdftoppm (Poppler)")
+    if shutil.which("tesseract") is None:
+        errors.append("Missing system dependency: tesseract")
+
+    if errors:
+        print("[red]Dependency check failed:[/red]", file=sys.stderr)
+        for err in errors:
+            print(f"[red]- {err}[/red]", file=sys.stderr)
+        exit(1)
+    print("[green]All dependencies are correctly configured![/green]", file=sys.stderr)
 
 
 @app.command(help="Creates the Ollama model used for formatting")
