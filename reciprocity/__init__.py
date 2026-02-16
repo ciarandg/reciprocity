@@ -72,7 +72,7 @@ def read(
             print(text)
 
 
-@app.command(help="Restrucutres a plaintext recipe to fit a consistent template")
+@app.command(help="Restructures a plaintext recipe to fit a consistent template")
 def format(
     input_file: Annotated[
         Optional[Path],
