@@ -3,8 +3,10 @@ from importlib import resources
 from pathlib import Path
 from typing import Annotated, Optional, TextIO
 
+import pytesseract
 import typer
 from ollama import Client
+from PIL import Image
 from rich import print
 
 OLLAMA_HOST = "http://127.0.0.1:11434"
@@ -27,6 +29,22 @@ def setup():
         system=system_prompt(),
     )
     print("[yellow]Success![/yellow]", file=sys.stderr)
+
+
+@app.command(help="Takes an image of a recipe and runs OCR to convert it to plaintext")
+def read(
+    input_file: Annotated[
+        Path,
+        typer.Option(
+            "-i",
+            "--input-file",
+            help="The path of the text file containing a recipe (otherwise reads from stdin)",
+        ),
+    ],
+):
+    image = Image.open(input_file)
+    ocr = pytesseract.image_to_string(image)
+    print(ocr)
 
 
 @app.command(
