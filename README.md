@@ -13,8 +13,9 @@ I know that there are a number of other FOSS recipe management solutions availab
 ## Dependencies
 
 1. [Poppler](https://poppler.freedesktop.org/) (specifically `pdftoppm`) is needed for converting PDFs into images
-1. [Tesseract OCR](https://tesseract-ocr.github.io/) is needed for converting images into plaintext
-2. [Ollama](https://ollama.com/) is needed for running a locally-hosted LLM to coerce plaintext recipes into templated Markdown
+2. [Tesseract OCR](https://tesseract-ocr.github.io/) is needed for converting images into plaintext
+3. [Ollama](https://ollama.com/) is needed for running a locally-hosted LLM to coerce plaintext recipes into templated Markdown
+   - Note that Reciprocity does not support cloud models, and that it builds its own model automatically by pairing `qwen3` with a system prompt
 
 You can run `reciprocity setup` to confirm that your environment has all the required dependencies available.
 
