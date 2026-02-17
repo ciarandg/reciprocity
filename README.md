@@ -6,7 +6,7 @@ Reciprocity is a CLI and daemon for converting recipe scans to Markdown.
 
 I have a lot of cookbooks. Among those cookbooks are a far fewer number of recipes that I consider go-tos, and which I want to have on-hand. I have been scanning recipes that I like and dumping them into my notes as PDFs for a long time, but eventually I end up needing to transcribe them into plaintext by hand so that I can add notes and tweaks.
 
-Reciprocity provides a pipeline for converting PDF recipes to a consistent Markdown format. Once converted to Markdown, I can manually adapt recipes as a part of my own note-taking system.
+Reciprocity provides a pipeline for converting PDF recipes to a consistent Markdown format. Once converted to Markdown, I can manually edit my recipes as part of my own note-taking system.
 
 I know that there are a number of other FOSS recipe management solutions available. I have not taken a comprehensive look at the options, but my understanding is that most of them take a heavyweight database + web-UI approach rather than simply treating recipes as notes. Those other solutions may be more suited to peoples' personal needs; this is the tool that suits mine.
 
