@@ -4,7 +4,7 @@ Reciprocity is a CLI and daemon (_daemon not yet implemented_) for converting re
 
 ## Motivation
 
-I have a lot of cookbooks. Among those cookbooks are a far fewer number of recipes that I consider go-tos, and which I want to have on-hand. I have been scanning recipes that I like and dumping them into my notes as PDFs for a long time, but eventually I end up needing to transcribe them into plaintext by hand so that I can add notes and tweaks.
+I have a lot of cookbooks. Among those cookbooks are a far fewer number of recipes that I consider go-tos, and which I want to have on-hand. I have been scanning recipes that I like and dumping them into my notes as PDFs for a long time, but eventually I end up needing to transcribe them into Markdown by hand so that I can add notes and tweaks.
 
 Reciprocity provides a pipeline for converting PDF recipes to a consistent Markdown format. Once converted to Markdown, I can manually edit my recipes as part of my own note-taking system.
 
