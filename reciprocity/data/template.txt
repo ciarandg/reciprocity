@@ -1,19 +1,21 @@
-# {{recipe_title}}
-
-## Metadata
-- **Source:** {{source}}
-- **Author:** {{author}}
-- **Cuisine:** {{cuisine}}
-- **Yield:** {{yield}}
-- **Prep Time:** {{prep_time}}
-- **Cook Time:** {{cook_time}}
-- **Total Time:** {{total_time}}
+---
+title: {{recipe_title}}
+book: {{recipe_book_title}}
+author: {{recipe_author}}
+page: {{recipe_page}}
+cuisine: {{recipe_cuisine}}
+yield: {{recipe_yield}}
+adapted: false
+---
 
 ## Ingredients
+
 {{ingredients}}
 
-## Instructions
-{{instructions}}
+## Method
+
+{{method}}
 
 ## Notes
+
 {{notes}}
