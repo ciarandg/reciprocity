@@ -1,6 +1,6 @@
 # Reciprocity
 
-Reciprocity is a CLI and daemon for converting recipe scans to Markdown.
+Reciprocity is a CLI and daemon (_daemon not yet implemented_) for converting recipe scans to Markdown.
 
 ## Motivation
 
