@@ -8,7 +8,7 @@ I have a lot of cookbooks. Among those cookbooks are a far fewer number of recip
 
 Reciprocity provides a pipeline for converting PDF recipes to a consistent Markdown format. Once converted to Markdown, I can manually edit my recipes as part of my own note-taking system.
 
-I know that there are a number of other FOSS recipe management solutions available. I have not taken a comprehensive look at the options, but my understanding is that most of them take a heavyweight database + web-UI approach rather than simply treating recipes as notes. Those other solutions may be more suited to peoples' personal needs; this is the tool that suits mine.
+I know that there are a number of other FOSS recipe management solutions available. I have not taken a comprehensive look at the options, but my understanding is that most of them take a heavyweight database + web-UI approach rather than simply treating recipes as notes. Those other solutions may be more suited to most peoples' personal needs; this is the tool that suits mine.
 
 ## Dependencies
 
