@@ -30,7 +30,7 @@ Another option is to clone this repo and use `uv` directly to run Reciprocity, e
 
 Reciprocity provides three subcommands:
 
-1. `setup`: Confirms that external dependencies are available, and builds custom Ollama model if not yet available
+1. `setup`: Confirms that external dependencies are available, and builds the custom Ollama model if not yet available
 2. `read`: Takes one or more `-i <path>` options to PDF or image files that comprise a single recipe, uses [Tesseract OCR](https://tesseract-ocr.github.io/) via [pytesseract](https://pypi.org/project/pytesseract/) to convert them into plaintext, and writes them to `stdout`
 3. `format`: Takes plaintext via `stdin` or reads from a file provided via a `-i <path>` option, builds a custom Ollama model if not yet available, and then uses that model to coerce the input plaintext into the [built-in Markdown template](./reciprocity/data/template.txt)
 
