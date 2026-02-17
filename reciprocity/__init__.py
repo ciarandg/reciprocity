@@ -1,3 +1,6 @@
+from rich.live import Live
+from rich.text import Text
+from rich.console import Console
 import shutil
 from pdf2image import convert_from_path
 import sys
@@ -17,6 +20,7 @@ OLLAMA_BASE = "qwen3:1.7b"
 
 app = typer.Typer()
 client = Client(host=OLLAMA_HOST)
+console = Console(stderr=True)
 
 
 @app.command(
@@ -34,7 +38,7 @@ def setup():
             f"Broken configuration: could not connect to Ollama at {OLLAMA_HOST}"
         )
 
-    if is_ollama_working and not has_model():
+    if is_ollama_working and not has_model(OLLAMA_MODEL):
         build_model()
 
     if shutil.which("pdftoppm") is None:
@@ -94,7 +98,7 @@ def format(
         bool, typer.Option(help="Streams model's thinking field to stderr")
     ] = True,
 ):
-    if not has_model():
+    if not has_model(OLLAMA_MODEL):
         build_model()
 
     recipe_raw: str
@@ -132,7 +136,24 @@ def format(
             print(content, end="", file=content_out, flush=True)
 
 
+def pull_base_model():
+    console.print(f"[yellow]Pulling base model {OLLAMA_BASE}...[/yellow]")
+
+    stream = client.pull(OLLAMA_BASE, stream=True)
+
+    text = Text("Pulling: 0%", style="yellow")
+    with Live(text, console=console, refresh_per_second=10):
+        for chunk in stream:
+            if chunk.completed and chunk.total:
+                pct = int(chunk.completed / chunk.total * 100)
+                text.plain = f"Pulling: {pct}%"
+    print("[yellow]Successfully pulled base model![/yellow]", file=sys.stderr)
+
+
 def build_model():
+    if not has_model(OLLAMA_BASE):
+        pull_base_model()
+
     print(
         f"[yellow]Creating model {OLLAMA_MODEL} from base {OLLAMA_BASE}...[/yellow]",
         file=sys.stderr,
@@ -164,9 +185,9 @@ INSTRUCTIONS:
 """
 
 
-def has_model() -> bool:
+def has_model(name: str) -> bool:
     models = client.list().models
-    matches = [m for m in models if m["model"] == f"{OLLAMA_MODEL}:latest"]
+    matches = [m for m in models if m["model"] == f"{name}:latest"]
     return len(matches) > 0
 
 
