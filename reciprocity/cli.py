@@ -1,0 +1,58 @@
+from reciprocity.setup import setup
+from reciprocity.format import format
+from reciprocity.read import read
+from pathlib import Path
+from typing import Annotated, Optional
+
+import typer
+
+app = typer.Typer()
+
+
+@app.command(
+    "setup",
+    help="Checks for required system dependencies and builds Ollama model if necessary",
+)
+def cli_setup():
+    setup()
+
+
+@app.command("read", help="Converts images or PDFs of a recipe to plaintext")
+def cli_read(
+    input_files: Annotated[
+        list[Path],
+        typer.Option(
+            "-i",
+            "--input-files",
+            help="Path(s) to images or PDF files containing a recipe",
+        ),
+    ],
+):
+    read(input_files)
+
+
+@app.command(
+    "format", help="Restructures a plaintext recipe to fit a consistent template"
+)
+def cli_format(
+    input_file: Annotated[
+        Optional[Path],
+        typer.Option(
+            "-i",
+            "--input-file",
+            help="Path to text file containing a recipe (otherwise reads from stdin)",
+        ),
+    ] = None,
+    output_file: Annotated[
+        Optional[Path],
+        typer.Option(
+            "-o",
+            "--output-file",
+            help="Path to file for formatted recipe (otherwise writes to stdout)",
+        ),
+    ] = None,
+    print_thinking: Annotated[
+        bool, typer.Option(help="Streams model's thinking field to stderr")
+    ] = True,
+):
+    format(input_file, output_file, print_thinking)
