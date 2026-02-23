@@ -1,58 +1,64 @@
-from rich.console import Console
+import time
+import logging
 from reciprocity.globals import OLLAMA_MODEL, OLLAMA_BASE, ollama_client
-from rich.live import Live
-from rich.text import Text
 import sys
 from importlib import resources
 from pathlib import Path
 from typing import Optional, TextIO
 
-from rich import print
-
-console_stderr = Console(stderr=True)
+logger = logging.getLogger(__name__)
 
 
 def format(
     input_file: Optional[Path] = None,
     output_file: Optional[Path] = None,
-    print_thinking: bool = True,
 ):
     if not has_model(OLLAMA_MODEL):
         build_model()
 
-    recipe_raw: str
-    if not input_file:
+    if input_file is None:
         recipe_raw = sys.stdin.read()
     else:
         recipe_raw = _read_file(input_file)
 
-    stream = ollama_client.chat(
-        model=OLLAMA_MODEL,
-        messages=[
-            {
-                "role": "user",
-                "content": recipe_raw,
-            },
-        ],
-        stream=True,
-    )
-
-    content_out: TextIO
     if output_file is not None:
-        content_out = open(output_file, "w")
+        content_out: TextIO = open(output_file, "w", encoding="utf-8")
     else:
         content_out = sys.stdout
 
+    stream = ollama_client.chat(
+        model=OLLAMA_MODEL,
+        messages=[{"role": "user", "content": recipe_raw}],
+        stream=True,
+    )
+
+    # Buffer for thinking text
+    thinking_buffer = ""
+
     for chunk in stream:
         message = chunk.get("message", {})
-        thinking = message.get("thinking", None)
-        content = message.get("content", None)
+        thinking = message.get("thinking")
+        content = message.get("content")
 
-        if print_thinking and thinking:
-            print(f"[blue]{thinking}[/blue]", end="", file=sys.stderr, flush=True)
+        # Buffer thinking until a newline
+        if thinking:
+            thinking_buffer += thinking
+            while "\n" in thinking_buffer:
+                line, thinking_buffer = thinking_buffer.split("\n", 1)
+                line = line.strip()
+                if line:
+                    logger.debug(f"[blue]{line}[/blue]")
 
+        # Write output to stdout
         if content:
             print(content, end="", file=content_out, flush=True)
+
+    # Flush any remaining thinking text
+    if thinking_buffer:
+        logger.debug(thinking_buffer)
+
+    if output_file is not None:
+        content_out.close()
 
 
 def has_model(name: str) -> bool:
@@ -65,30 +71,34 @@ def build_model():
     if not has_model(OLLAMA_BASE):
         _pull_base_model()
 
-    print(
+    logger.info(
         f"[yellow]Creating model {OLLAMA_MODEL} from base {OLLAMA_BASE}...[/yellow]",
-        file=sys.stderr,
     )
     ollama_client.create(
         model=OLLAMA_MODEL,
         from_=OLLAMA_BASE,
         system=_system_prompt(),
     )
-    print("[yellow]Success![/yellow]", file=sys.stderr)
+    logger.info("[yellow]Success![/yellow]")
 
 
 def _pull_base_model():
-    console_stderr.print(f"[yellow]Pulling base model {OLLAMA_BASE}...[/yellow]")
+    logger.info(f"[yellow]Pulling base model {OLLAMA_BASE}...[/yellow]")
 
     stream = ollama_client.pull(OLLAMA_BASE, stream=True)
 
-    text = Text("Pulling: 0%", style="yellow")
-    with Live(text, console=console_stderr, refresh_per_second=10):
-        for chunk in stream:
-            if chunk.completed and chunk.total:
-                pct = int(chunk.completed / chunk.total * 100)
-                text.plain = f"Pulling: {pct}%"
-    print("[yellow]Successfully pulled base model![/yellow]", file=sys.stderr)
+    last_log_time = 0
+    min_interval_secs = 5
+
+    for chunk in stream:
+        if chunk.completed and chunk.total:
+            pct = int(chunk.completed / chunk.total * 100)
+            now = time.time()
+            if now - last_log_time >= min_interval_secs:
+                logger.info(f"[yellow]Pulling: {pct}%[/yellow]")
+                last_log_time = now
+
+    logger.info("[yellow]Successfully pulled base model![/yellow]")
 
 
 def _read_file(path: Path) -> str:
@@ -96,7 +106,7 @@ def _read_file(path: Path) -> str:
         with open(path, "r") as f:
             return f.read()
     except Exception as _:
-        print(f"Failed to read file: {path}")
+        logger.error(f"Failed to read file: {path}")
         exit(1)
 
 

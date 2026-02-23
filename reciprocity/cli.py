@@ -1,3 +1,4 @@
+from reciprocity.logging_config import setup_logging, LogLevel
 from reciprocity.setup import setup
 from reciprocity.format import format
 from reciprocity.read import read
@@ -7,6 +8,18 @@ from typing import Annotated, Optional
 import typer
 
 app = typer.Typer()
+
+
+@app.callback()
+def cli_main(
+    log_level: LogLevel = typer.Option(
+        LogLevel.info,
+        "--log-level",
+        case_sensitive=False,
+        help="Logging level (CRITICAL, ERROR, WARNING, INFO, DEBUG)",
+    ),
+):
+    setup_logging(level=log_level)
 
 
 @app.command(
@@ -51,8 +64,5 @@ def cli_format(
             help="Path to file for formatted recipe (otherwise writes to stdout)",
         ),
     ] = None,
-    print_thinking: Annotated[
-        bool, typer.Option(help="Streams model's thinking field to stderr")
-    ] = True,
 ):
-    format(input_file, output_file, print_thinking)
+    format(input_file, output_file)

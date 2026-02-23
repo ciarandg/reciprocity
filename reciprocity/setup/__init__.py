@@ -1,9 +1,9 @@
+import logging
 from reciprocity.format import has_model, build_model
 from reciprocity.globals import ollama_client, OLLAMA_HOST, OLLAMA_MODEL
 import shutil
-import sys
 
-from rich import print
+logger = logging.getLogger("test")
 
 
 def setup():
@@ -27,8 +27,8 @@ def setup():
         errors.append("Missing system dependency: tesseract")
 
     if errors:
-        print("[red]Dependency check failed:[/red]", file=sys.stderr)
+        logger.error("[red]Dependency check failed:[/red]")
         for err in errors:
-            print(f"[red]- {err}[/red]", file=sys.stderr)
+            logger.error(f"[red]- {err}[/red]")
         exit(1)
-    print("[green]All dependencies are correctly configured![/green]", file=sys.stderr)
+    logger.info("[green]All dependencies are correctly configured![/green]")
