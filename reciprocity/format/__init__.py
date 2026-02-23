@@ -1,10 +1,11 @@
-import time
 import logging
-from reciprocity.globals import OLLAMA_MODEL, OLLAMA_BASE, ollama_client
 import sys
+import time
 from importlib import resources
 from pathlib import Path
-from typing import Optional, TextIO
+from typing import AsyncIterator, Optional, TextIO
+
+from reciprocity.globals import OLLAMA_BASE, OLLAMA_MODEL, ollama_client
 
 logger = logging.getLogger(__name__)
 
@@ -26,13 +27,31 @@ def format(
     else:
         content_out = sys.stdout
 
+    try:
+        import asyncio
+
+        async def _run():
+            async for chunk in format_inner(recipe_raw):
+                print(chunk, end="", file=content_out, flush=True)
+
+        asyncio.run(_run())
+    finally:
+        if output_file is not None:
+            content_out.close()
+
+
+async def format_inner(input: str) -> AsyncIterator[str]:
+    """
+    Core formatting logic.
+
+    Streams content tokens as they are produced and logs thinking output.
+    """
     stream = ollama_client.chat(
         model=OLLAMA_MODEL,
-        messages=[{"role": "user", "content": recipe_raw}],
+        messages=[{"role": "user", "content": input}],
         stream=True,
     )
 
-    # Buffer for thinking text
     thinking_buffer = ""
 
     for chunk in stream:
@@ -40,7 +59,6 @@ def format(
         thinking = message.get("thinking")
         content = message.get("content")
 
-        # Buffer thinking until a newline
         if thinking:
             thinking_buffer += thinking
             while "\n" in thinking_buffer:
@@ -49,16 +67,11 @@ def format(
                 if line:
                     logger.debug(f"[blue]{line}[/blue]")
 
-        # Write output to stdout
         if content:
-            print(content, end="", file=content_out, flush=True)
+            yield content
 
-    # Flush any remaining thinking text
-    if thinking_buffer:
+    if thinking_buffer.strip():
         logger.debug(thinking_buffer)
-
-    if output_file is not None:
-        content_out.close()
 
 
 def has_model(name: str) -> bool:
@@ -103,11 +116,11 @@ def _pull_base_model():
 
 def _read_file(path: Path) -> str:
     try:
-        with open(path, "r") as f:
+        with open(path, "r", encoding="utf-8") as f:
             return f.read()
-    except Exception as _:
+    except Exception:
         logger.error(f"Failed to read file: {path}")
-        exit(1)
+        sys.exit(1)
 
 
 def _system_prompt() -> str:

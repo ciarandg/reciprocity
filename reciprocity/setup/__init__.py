@@ -3,7 +3,7 @@ from reciprocity.format import has_model, build_model
 from reciprocity.globals import ollama_client, OLLAMA_HOST, OLLAMA_MODEL
 import shutil
 
-logger = logging.getLogger("test")
+logger = logging.getLogger(__name__)
 
 
 def setup():

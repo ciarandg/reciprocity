@@ -1,3 +1,4 @@
+from reciprocity.watch import watch
 from reciprocity.logging_config import setup_logging, LogLevel
 from reciprocity.setup import setup
 from reciprocity.format import format
@@ -41,7 +42,7 @@ def cli_read(
         ),
     ],
 ):
-    read(input_files)
+    print(read(input_files))
 
 
 @app.command(
@@ -66,3 +67,21 @@ def cli_format(
     ] = None,
 ):
     format(input_file, output_file)
+
+
+@app.command(
+    "watch",
+    help="Watches a directory for new files, processes them, and outputs to another directory",
+)
+def cli_watch(
+    input_dir: Annotated[
+        Path, typer.Option("-i", "--input-dir", help="The directory to watch")
+    ],
+    output_dir: Annotated[
+        Path,
+        typer.Option(
+            "-o", "--output-dir", help="The directory to output processed files to"
+        ),
+    ],
+):
+    watch(input_dir, output_dir)
