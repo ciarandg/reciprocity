@@ -6,7 +6,7 @@ from importlib import resources
 from pathlib import Path
 from typing import AsyncIterator, Optional, TextIO
 
-from reciprocity.globals import OLLAMA_MODEL, ollama_client
+from reciprocity.globals import ollama_model, ollama_client
 
 logger = logging.getLogger(__name__)
 
@@ -15,7 +15,7 @@ def format(
     input_file: Optional[Path] = None,
     output_file: Optional[Path] = None,
 ):
-    if not has_model(OLLAMA_MODEL):
+    if not has_model(ollama_model):
         build_model()
 
     if input_file is None:
@@ -48,7 +48,7 @@ async def format_inner(input: str) -> AsyncIterator[str]:
     Streams content tokens as they are produced and logs thinking output.
     """
     stream = ollama_client.chat(
-        model=OLLAMA_MODEL,
+        model=ollama_model,
         messages=[{"role": "user", "content": input}],
         stream=True,
     )
@@ -86,10 +86,10 @@ def build_model():
         _pull_base_model()
 
     logger.info(
-        f"[yellow]Creating model {OLLAMA_MODEL} from base {config.ollama.base}...[/yellow]",
+        f"[yellow]Creating model {ollama_model} from base {config.ollama.base}...[/yellow]",
     )
     ollama_client.create(
-        model=OLLAMA_MODEL,
+        model=ollama_model,
         from_=config.ollama.base,
         system=_system_prompt(),
     )
