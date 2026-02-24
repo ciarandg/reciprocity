@@ -1,6 +1,7 @@
+from reciprocity.config import config
 import logging
 from reciprocity.format import has_model, build_model
-from reciprocity.globals import ollama_client, OLLAMA_HOST, OLLAMA_MODEL
+from reciprocity.globals import ollama_client, OLLAMA_MODEL
 import shutil
 
 logger = logging.getLogger(__name__)
@@ -15,7 +16,7 @@ def setup():
     except Exception:
         is_ollama_working = False
         errors.append(
-            f"Broken configuration: could not connect to Ollama at {OLLAMA_HOST}"
+            f"Broken configuration: could not connect to Ollama at {config.ollama.host}"
         )
 
     if is_ollama_working and not has_model(OLLAMA_MODEL):

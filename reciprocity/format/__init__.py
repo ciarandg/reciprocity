@@ -1,3 +1,4 @@
+from reciprocity.config import config
 import logging
 import sys
 import time
@@ -5,7 +6,7 @@ from importlib import resources
 from pathlib import Path
 from typing import AsyncIterator, Optional, TextIO
 
-from reciprocity.globals import OLLAMA_BASE, OLLAMA_MODEL, ollama_client
+from reciprocity.globals import OLLAMA_MODEL, ollama_client
 
 logger = logging.getLogger(__name__)
 
@@ -81,24 +82,24 @@ def has_model(name: str) -> bool:
 
 
 def build_model():
-    if not has_model(OLLAMA_BASE):
+    if not has_model(config.ollama.base):
         _pull_base_model()
 
     logger.info(
-        f"[yellow]Creating model {OLLAMA_MODEL} from base {OLLAMA_BASE}...[/yellow]",
+        f"[yellow]Creating model {OLLAMA_MODEL} from base {config.ollama.base}...[/yellow]",
     )
     ollama_client.create(
         model=OLLAMA_MODEL,
-        from_=OLLAMA_BASE,
+        from_=config.ollama.base,
         system=_system_prompt(),
     )
     logger.info("[yellow]Success![/yellow]")
 
 
 def _pull_base_model():
-    logger.info(f"[yellow]Pulling base model {OLLAMA_BASE}...[/yellow]")
+    logger.info(f"[yellow]Pulling base model {config.ollama.base}...[/yellow]")
 
-    stream = ollama_client.pull(OLLAMA_BASE, stream=True)
+    stream = ollama_client.pull(config.ollama.base, stream=True)
 
     last_log_time = 0
     min_interval_secs = 5
