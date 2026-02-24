@@ -1,6 +1,6 @@
 # Reciprocity
 
-Reciprocity is a CLI and daemon (_daemon not yet implemented_) for converting recipe scans to Markdown.
+Reciprocity is a CLI and daemon for converting recipe scans to Markdown.
 
 ## Motivation
 
@@ -34,6 +34,7 @@ Reciprocity provides three subcommands:
 1. `setup`: Confirms that external dependencies are available, and builds the custom Ollama model if not yet available
 2. `read`: Takes one or more `-i <path>` options to PDF or image files that comprise a single recipe, uses [Tesseract OCR](https://tesseract-ocr.github.io/) via [pytesseract](https://pypi.org/project/pytesseract/) to convert them into plaintext, and writes them to `stdout`
 3. `format`: Takes plaintext via `stdin` or reads from a file provided via a `-i <path>` option, builds a custom Ollama model if not yet available, and then uses that model to coerce the input plaintext into the [built-in Markdown template](./reciprocity/data/template.txt)
+3. `watch`: Launches a daemon that monitors an input directory at `-i <path>` for new files, reads them via OCR, formats them with an Ollama model, and writes them to an output directory at `-o <path>`.
 
 ## Examples
 
