@@ -1,19 +1,28 @@
-from reciprocity.config import config
-from reciprocity.watch import watch
-from reciprocity.logging_config import setup_logging, LogLevel
-from reciprocity.setup import setup
-from reciprocity.format import format
-from reciprocity.read import read
+from importlib.metadata import version
 from pathlib import Path
 from typing import Annotated, Optional
 
 import typer
 
+from reciprocity.config import config
+from reciprocity.format import format
+from reciprocity.logging_config import LogLevel, setup_logging
+from reciprocity.read import read
+from reciprocity.setup import setup
+from reciprocity.watch import watch
+
 app = typer.Typer()
 
 
-@app.callback()
+@app.callback(invoke_without_command=True)
 def cli_main(
+    ctx: typer.Context,
+    version_opt: bool = typer.Option(
+        False,
+        "--version",
+        help="Show the application version and exit",
+        is_eager=True,
+    ),
     log_level: Optional[LogLevel] = typer.Option(
         None,
         "--log-level",
@@ -21,6 +30,19 @@ def cli_main(
         help="Logging level (CRITICAL, ERROR, WARNING, INFO, DEBUG)",
     ),
 ):
+    if version_opt:
+        typer.echo(version("reciprocity"))
+        raise typer.Exit()
+
+    if ctx.invoked_subcommand is None:
+        if log_level is not None:
+            raise typer.BadParameter(
+                "Missing subcommand.",
+                param_hint="--log-level",
+            )
+        typer.echo(ctx.get_help())
+        raise typer.Exit()
+
     setup_logging(level=log_level or LogLevel[config.log_level])
 
 
