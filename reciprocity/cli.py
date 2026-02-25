@@ -1,3 +1,4 @@
+from reciprocity.config import config
 from reciprocity.watch import watch
 from reciprocity.logging_config import setup_logging, LogLevel
 from reciprocity.setup import setup
@@ -13,14 +14,14 @@ app = typer.Typer()
 
 @app.callback()
 def cli_main(
-    log_level: LogLevel = typer.Option(
-        LogLevel.info,
+    log_level: Optional[LogLevel] = typer.Option(
+        None,
         "--log-level",
         case_sensitive=False,
         help="Logging level (CRITICAL, ERROR, WARNING, INFO, DEBUG)",
     ),
 ):
-    setup_logging(level=log_level)
+    setup_logging(level=log_level or LogLevel[config.log_level])
 
 
 @app.command(

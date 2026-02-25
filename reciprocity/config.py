@@ -4,7 +4,10 @@ import json
 from pathlib import Path
 from platformdirs import PlatformDirs
 
-DEFAULT_CONFIG = {"ollama": {"host": "http://127.0.0.1:11434", "base": "qwen3:1.7b"}}
+DEFAULT_CONFIG = {
+    "log_level": "info",
+    "ollama": {"host": "http://127.0.0.1:11434", "base": "qwen3:1.7b"},
+}
 
 dirs = PlatformDirs("reciprocity", "ciarandg")
 
