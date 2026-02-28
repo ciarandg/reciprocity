@@ -88,10 +88,32 @@
               pyprojectOverrides
             ]
           );
+
+        # Add metadata attributes to the virtual environment.
+        # This is useful to inject meta and other attributes onto the virtual environment derivation.
+        #
+        # See
+        # - https://nixos.org/manual/nixpkgs/unstable/#chap-passthru
+        # - https://nixos.org/manual/nixpkgs/unstable/#chap-meta
+        addMeta = drv:
+          drv.overrideAttrs (old: {
+            # Pass through tests from our package into the virtualenv so they can be discovered externally.
+            passthru = lib.recursiveUpdate (old.passthru or {}) {
+              inherit (pythonSet.testing.passthru) tests;
+            };
+
+            # Set meta.mainProgram for commands like `nix run`.
+            # https://nixos.org/manual/nixpkgs/stable/#var-meta-mainProgram
+            meta =
+              (old.meta or {})
+              // {
+                mainProgram = "reciprocity";
+              };
+          });
       in {
         packages = {
-          reciprocity = pythonSet.mkVirtualEnv "reciprocity" workspace.deps.default;
-          default = self.packages.${system}.reciprocity;
+          reciprocity = addMeta (pythonSet.mkVirtualEnv "reciprocity" workspace.deps.default);
+          default = addMeta (self.packages.${system}.reciprocity);
         };
       };
     };
