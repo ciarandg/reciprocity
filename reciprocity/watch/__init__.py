@@ -12,14 +12,9 @@ logger = logging.getLogger(__name__)
 def watch(input_dir: Path, output_dir: Path):
     if not input_dir.exists():
         logger.info(
-            "[red]Error: Input directory (`-i`/`--input-dir`) must already exist[/red]",
+            f"[yellow]Creating input directory {input_dir}...[/yellow]",
         )
-        exit(1)
-    if not input_dir.is_dir():
-        logger.info(
-            "[red]Error: Input directory (`-i`/`--input-dir`) must be a directory[/red]",
-        )
-        exit(1)
+        mkdir(input_dir)
     if not output_dir.exists():
         logger.info(
             f"[yellow]Creating output directory {output_dir}...[/yellow]",
