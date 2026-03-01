@@ -1,15 +1,18 @@
+import logging
 from importlib.metadata import version
 from pathlib import Path
 from typing import Annotated, Optional
 
 import typer
 
-from reciprocity.config import get_config
+from reciprocity.config import get_config, config_file, get_config_dict
 from reciprocity.format import format
 from reciprocity.logging_config import LogLevel, setup_logging
 from reciprocity.read import read
 from reciprocity.setup import setup
 from reciprocity.watch import watch
+
+logger = logging.getLogger(__name__)
 
 app = typer.Typer()
 
@@ -43,7 +46,10 @@ def cli_main(
         typer.echo(ctx.get_help())
         raise typer.Exit()
 
-    setup_logging(level=log_level or LogLevel[get_config().log_level])
+    config_log_level = get_config().log_level
+    setup_logging(level=log_level or LogLevel[config_log_level])
+    logger.debug(f"[grey]Config file: {config_file()}[/grey]")
+    logger.debug(f"[grey]Loaded config:\n{get_config_dict()}[/grey]")
 
 
 @app.command(

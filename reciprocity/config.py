@@ -11,13 +11,8 @@ DEFAULT_CONFIG = {
     "ollama": {"host": "http://127.0.0.1:11434", "base": "qwen3:1.7b"},
 }
 
-dirs = PlatformDirs("reciprocity", "ciarandg")
 
-config_dir = Path(dirs.user_config_dir)
-config_file = config_dir / "config.json"
-
-
-def load_json_config(path: Path) -> dict:
+def _load_json_config(path: Path) -> dict:
     if not path.exists():
         return {}
 
@@ -25,7 +20,7 @@ def load_json_config(path: Path) -> dict:
         return json.load(f)
 
 
-def deep_merge(base: dict, override: dict) -> dict:
+def _deep_merge(base: dict, override: dict) -> dict:
     """
     Recursively merge override into base.
     Does not mutate inputs.
@@ -38,23 +33,47 @@ def deep_merge(base: dict, override: dict) -> dict:
             and isinstance(result[key], Mapping)
             and isinstance(value, Mapping)
         ):
-            result[key] = deep_merge(result[key], value)
+            result[key] = _deep_merge(result[key], value)
         else:
             result[key] = value
 
     return result
 
 
-def to_namespace(d):
+def _to_namespace(d):
     if isinstance(d, dict):
-        return SimpleNamespace(**{k: to_namespace(v) for k, v in d.items()})
+        return SimpleNamespace(**{k: _to_namespace(v) for k, v in d.items()})
     elif isinstance(d, list):
-        return [to_namespace(x) for x in d]
+        return [_to_namespace(x) for x in d]
     return d
 
 
 @lru_cache(maxsize=1)
+def config_file() -> Path:
+    """
+    Returns the path to the configuration file
+    """
+    dirs = PlatformDirs("reciprocity", "ciarandg")
+    config_dir = Path(dirs.user_config_dir)
+    return config_dir / "config.json"
+
+
+@lru_cache(maxsize=1)
+def get_config_dict():
+    """
+    Returns a dictionary containing the configuration (merged with defaults).
+    In most cases you should use get_config() instead as it provides a namespace
+    object that you can access with the dot operator.
+    """
+    file = config_file()
+    user_config = _load_json_config(file)
+    return _deep_merge(DEFAULT_CONFIG, user_config)
+
+
+@lru_cache(maxsize=1)
 def get_config():
-    user_config = load_json_config(config_file)
-    merged = deep_merge(DEFAULT_CONFIG, user_config)
-    return to_namespace(merged)
+    """
+    Returns a namespace object containing the configuration (merged with defaults).
+    """
+    merged = get_config_dict()
+    return _to_namespace(merged)
