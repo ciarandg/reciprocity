@@ -48,8 +48,8 @@ def cli_main(
 
     config_log_level = get_config().log_level
     setup_logging(level=log_level or LogLevel[config_log_level])
-    logger.debug(f"[grey]Config file: {config_file()}[/grey]")
-    logger.debug(f"[grey]Loaded config:\n{get_config_dict()}[/grey]")
+    logger.debug(f"Config file: {config_file()}")
+    logger.debug(f"Loaded config:\n{get_config_dict()}")
 
 
 @app.command(
