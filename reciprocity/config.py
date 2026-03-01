@@ -1,4 +1,5 @@
 import json
+import os
 from collections.abc import Mapping
 from functools import lru_cache
 from pathlib import Path
@@ -40,6 +41,19 @@ def _deep_merge(base: dict, override: dict) -> dict:
     return result
 
 
+def _env_overrides(prefix: str = "RECIPROCITY_") -> dict:
+    overrides = {}
+    for key, value in os.environ.items():
+        if not key.startswith(prefix):
+            continue
+        path = key[len(prefix) :].lower().split("_")
+        cursor = overrides
+        for part in path[:-1]:
+            cursor = cursor.setdefault(part, {})
+        cursor[path[-1]] = value
+    return overrides
+
+
 def _to_namespace(d):
     if isinstance(d, dict):
         return SimpleNamespace(**{k: _to_namespace(v) for k, v in d.items()})
@@ -67,7 +81,9 @@ def get_config_dict():
     """
     file = config_file()
     user_config = _load_json_config(file)
-    return _deep_merge(DEFAULT_CONFIG, user_config)
+    merged = _deep_merge(DEFAULT_CONFIG, user_config)
+    env_config = _env_overrides()
+    return _deep_merge(merged, env_config)
 
 
 @lru_cache(maxsize=1)
