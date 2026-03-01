@@ -69,9 +69,9 @@
         "x86_64-linux"
       ];
 
-      # flake = {
-      #   nixosModules.reciprocity = ./nix/module.nix;
-      # };
+      flake = {
+        nixosModules.reciprocity = ./nix/module.nix;
+      };
 
       perSystem = {
         config,
