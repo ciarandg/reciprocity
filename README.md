@@ -64,3 +64,5 @@ You can override the default configuration values for Reciprocity at `$XDG_CONFI
 - `ollama`:
   - `host` (`RECIPROCITY_OLLAMA_HOST`): The Ollama server's host, default `http://127.0.0.1:11434`
   - `base` (`RECIPROCITY_OLLAMA_BASE`): The base model to use for building, default `qwen3:1.7b`
+
+Reciprocity also supports a `RECIPROCITY_CONFIG_FILE` env var containing a path to the configuration file you wish to use.

@@ -7,6 +7,8 @@ from types import SimpleNamespace
 
 from platformdirs import PlatformDirs
 
+ENV_VAR_PREFIX = "RECIPROCITY_"
+ENV_VAR_CONFIG_FILE = f"{ENV_VAR_PREFIX}CONFIG_FILE"
 DEFAULT_CONFIG = {
     "logging": {"level": "info"},
     "ollama": {"host": "http://127.0.0.1:11434", "base": "qwen3:1.7b"},
@@ -41,12 +43,14 @@ def _deep_merge(base: dict, override: dict) -> dict:
     return result
 
 
-def _env_overrides(prefix: str = "RECIPROCITY_") -> dict:
+def _env_overrides() -> dict:
     overrides = {}
     for key, value in os.environ.items():
-        if not key.startswith(prefix):
+        if not key.startswith(ENV_VAR_PREFIX):
             continue
-        path = key[len(prefix) :].lower().split("_")
+        if key == ENV_VAR_CONFIG_FILE:
+            continue
+        path = key[len(ENV_VAR_PREFIX) :].lower().split("_")
         cursor = overrides
         for part in path[:-1]:
             cursor = cursor.setdefault(part, {})
@@ -67,9 +71,12 @@ def config_file() -> Path:
     """
     Returns the path to the configuration file
     """
-    dirs = PlatformDirs("reciprocity", "ciarandg")
-    config_dir = Path(dirs.user_config_dir)
-    return config_dir / "config.json"
+    if ENV_VAR_CONFIG_FILE in os.environ:
+        return Path(os.environ[ENV_VAR_CONFIG_FILE])
+    else:
+        dirs = PlatformDirs("reciprocity", "ciarandg")
+        config_dir = Path(dirs.user_config_dir)
+        return config_dir / "config.json"
 
 
 def validate_config_file() -> list[str]:
