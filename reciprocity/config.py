@@ -8,7 +8,7 @@ from types import SimpleNamespace
 from platformdirs import PlatformDirs
 
 DEFAULT_CONFIG = {
-    "log_level": "info",
+    "logging": {"level": "info"},
     "ollama": {"host": "http://127.0.0.1:11434", "base": "qwen3:1.7b"},
 }
 

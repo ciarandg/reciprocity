@@ -46,7 +46,7 @@ def cli_main(
         typer.echo(ctx.get_help())
         raise typer.Exit()
 
-    config_log_level = get_config().log_level
+    config_log_level = get_config().logging.level
     setup_logging(level=log_level or LogLevel[config_log_level])
     logger.debug(f"Config file: {config_file()}")
     logger.debug(f"Loaded config:\n{get_config_dict()}")

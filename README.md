@@ -59,7 +59,8 @@ reciprocity read -i ~/recipes/cake.pdf | reciprocity format -o ~/recipes/cake.md
 
 You can override the default configuration values for Reciprocity at `$XDG_CONFIG_HOME/reciprocity/config.json`. All values are overridable via environment variables. The following properties are supported:
 
-- `log_level` (`RECIPROCITY_LOG_LEVEL`): The log level, default `info`, overridable with `--log-level`
+- `logging`:
+  - `level` (`RECIPROCITY_LOGGING_LEVEL`): The log level, default `info`, overridable with `--log-level`
 - `ollama`:
   - `host` (`RECIPROCITY_OLLAMA_HOST`): The Ollama server's host, default `http://127.0.0.1:11434`
   - `base` (`RECIPROCITY_OLLAMA_BASE`): The base model to use for building, default `qwen3:1.7b`
