@@ -72,6 +72,40 @@ def config_file() -> Path:
     return config_dir / "config.json"
 
 
+def validate_config_file() -> list[str]:
+    """
+    Returns a list of invalid key paths found in the user config file.
+    An empty list means the config file is valid.
+    """
+
+    def _validate(schema, data, prefix=""):
+        errors = []
+
+        if not isinstance(data, Mapping):
+            return errors
+
+        for key, value in data.items():
+            path = f"{prefix}.{key}" if prefix else key
+
+            if key not in schema:
+                errors.append(path)
+                continue
+
+            if isinstance(schema[key], Mapping):
+                if isinstance(value, Mapping):
+                    errors.extend(_validate(schema[key], value, path))
+                else:
+                    errors.append(path)
+            elif isinstance(value, Mapping):
+                errors.append(path)
+
+        return errors
+
+    file = config_file()
+    user_config = _load_json_config(file)
+    return _validate(DEFAULT_CONFIG, user_config)
+
+
 @lru_cache(maxsize=1)
 def get_config_dict():
     """

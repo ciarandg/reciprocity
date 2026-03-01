@@ -5,7 +5,12 @@ from typing import Annotated, Optional
 
 import typer
 
-from reciprocity.config import get_config, config_file, get_config_dict
+from reciprocity.config import (
+    config_file,
+    get_config,
+    get_config_dict,
+    validate_config_file,
+)
 from reciprocity.format import format
 from reciprocity.logging_config import LogLevel, setup_logging
 from reciprocity.read import read
@@ -49,6 +54,11 @@ def cli_main(
     config_log_level = get_config().logging.level
     setup_logging(level=log_level or LogLevel[config_log_level])
     logger.debug(f"Config file: {config_file()}")
+    invalid_keys = validate_config_file()
+    if len(invalid_keys) > 0:
+        logger.warning(
+            f"[yellow]Config contains invalid extra keys: {invalid_keys}[yellow]"
+        )
     logger.debug(f"Loaded config:\n{get_config_dict()}")
 
 
