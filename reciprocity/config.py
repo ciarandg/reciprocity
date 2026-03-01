@@ -51,6 +51,7 @@ def to_namespace(d):
     return d
 
 
-user_config = load_json_config(config_file)
-merged = deep_merge(DEFAULT_CONFIG, user_config)
-config = to_namespace(merged)
+def get_config():
+    user_config = load_json_config(config_file)
+    merged = deep_merge(DEFAULT_CONFIG, user_config)
+    return to_namespace(merged)

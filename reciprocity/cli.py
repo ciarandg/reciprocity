@@ -4,7 +4,7 @@ from typing import Annotated, Optional
 
 import typer
 
-from reciprocity.config import config
+from reciprocity.config import get_config
 from reciprocity.format import format
 from reciprocity.logging_config import LogLevel, setup_logging
 from reciprocity.read import read
@@ -43,7 +43,7 @@ def cli_main(
         typer.echo(ctx.get_help())
         raise typer.Exit()
 
-    setup_logging(level=log_level or LogLevel[config.log_level])
+    setup_logging(level=log_level or LogLevel[get_config().log_level])
 
 
 @app.command(
