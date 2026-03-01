@@ -18,7 +18,7 @@ in {
 
     package = lib.mkOption {
       type = lib.types.package;
-      default = self.packages.${pkgs.system}.reciprocity;
+      default = builtins.trace self self.packages.${pkgs.system}.reciprocity;
       description = "Package providing the reciprocity executable.";
     };
 
