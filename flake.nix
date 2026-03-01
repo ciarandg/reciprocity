@@ -58,11 +58,20 @@
       # It's using https://pyproject-nix.github.io/pyproject.nix/build.html
     };
   in
-    flake-parts.lib.mkFlake {inherit inputs;} {
+    flake-parts.lib.mkFlake {
+      inherit inputs;
+      specialArgs = {
+        inherit self;
+      };
+    } {
       systems = [
         "aarch64-linux"
         "x86_64-linux"
       ];
+
+      # flake = {
+      #   nixosModules.reciprocity = ./nix/module.nix;
+      # };
 
       perSystem = {
         config,
