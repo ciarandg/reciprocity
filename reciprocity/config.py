@@ -1,7 +1,9 @@
-from types import SimpleNamespace
-from collections.abc import Mapping
 import json
+from collections.abc import Mapping
+from functools import lru_cache
 from pathlib import Path
+from types import SimpleNamespace
+
 from platformdirs import PlatformDirs
 
 DEFAULT_CONFIG = {
@@ -51,6 +53,7 @@ def to_namespace(d):
     return d
 
 
+@lru_cache(maxsize=1)
 def get_config():
     user_config = load_json_config(config_file)
     merged = deep_merge(DEFAULT_CONFIG, user_config)
