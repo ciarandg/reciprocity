@@ -23,7 +23,7 @@ You can run `reciprocity setup` to confirm that your environment has all the req
 
 Reciprocity is not currently published to any package repositories, but there is a `flake.nix` file in this repository that you can use to install it.
 
-You can run Reciprocity directly via `nix run github:ciarandg/reciprocity`, or install it by adding the repository to your config as a Flake input and then adding `inputs.reciprocity.packages.<system>.reciprocity` to your `environment.systemPackages` or `home.packages`.
+You can run Reciprocity directly via `nix run github:ciarandg/reciprocity`, or install it by adding the repository to your config as a Flake input and then adding `inputs.reciprocity.packages.<system>.reciprocity` to your `environment.systemPackages` or `home.packages`. There is also a NixOS module exposed at `nixosModules.reciprocity` (see [nix/module.nix](./nix/module.nix) for implementation and options), which provides a systemd service via `services.reciprocity`.
 
 Another option is to clone this repo and use `uv` directly to run Reciprocity, e.g. `uv run reciprocity`.
 
