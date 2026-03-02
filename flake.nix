@@ -70,7 +70,7 @@
       ];
 
       flake = {
-        nixosModules.reciprocity = ./nix/module.nix;
+        nixosModules.reciprocity = flake-parts.lib.importApply ./nix/module.nix {localFlake = self;};
       };
 
       perSystem = {

@@ -1,5 +1,4 @@
-{
-  self,
+{localFlake}: {
   config,
   lib,
   pkgs,
@@ -18,7 +17,7 @@ in {
 
     package = lib.mkOption {
       type = lib.types.package;
-      default = builtins.trace self.outputs self.outputs.packages.${pkgs.system}.reciprocity;
+      default = builtins.trace localFlake localFlake.packages.${pkgs.system}.reciprocity;
       description = "Package providing the reciprocity executable.";
     };
 
